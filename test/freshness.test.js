@@ -5,6 +5,7 @@ import { scoreSignalFreshness } from '../src/core/freshness.js';
 test('marks clearly stale commentary as yesterdays news', () => {
   const result = scoreSignalFreshness({
     id: 'stale',
+    source: 'BrokerWrap',
     ticker: 'ALFA',
     headline: 'Late wrap-up',
     eventTime: '2026-04-08T09:30:00Z',
@@ -19,12 +20,14 @@ test('marks clearly stale commentary as yesterdays news', () => {
   });
 
   assert.equal(result.verdict, 'YESTERDAYS_NEWS');
+  assert.equal(result.utility, 'PR_VALUE');
   assert.ok(result.staleScore >= 75);
 });
 
 test('marks genuinely live information as fresh or still live', () => {
   const result = scoreSignalFreshness({
     id: 'fresh',
+    source: 'SectorKnife',
     ticker: 'VRTX',
     headline: 'Early analysis',
     eventTime: '2026-04-08T13:00:00Z',
@@ -39,5 +42,26 @@ test('marks genuinely live information as fresh or still live', () => {
   });
 
   assert.ok(['FRESH_SIGNAL', 'STILL_LIVE'].includes(result.verdict));
+  assert.ok(['TRADEABLE', 'LIVE_BUT_THIN'].includes(result.utility));
   assert.ok(result.staleScore < 55);
+});
+
+test('keeps novel but late material in the conceptual bucket', () => {
+  const result = scoreSignalFreshness({
+    id: 'late-but-smart',
+    source: 'MacroLetter',
+    ticker: 'DXY',
+    headline: 'Late but still informative',
+    eventTime: '2026-04-08T14:00:00Z',
+    publishTime: '2026-04-08T16:00:00Z',
+    direction: 'up',
+    priceChangeBeforePublishPct: 2.4,
+    priceChangeAfterPublishPct: 0.3,
+    volumeMultipleBeforePublish: 3.2,
+    volumeMultipleAfterPublish: 1.1,
+    hasNovelInformation: true,
+    notes: [],
+  });
+
+  assert.equal(result.utility, 'CONCEPT_VALUE');
 });

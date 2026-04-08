@@ -1,7 +1,7 @@
 {
   "name": "yesterdays-news",
   "version": "0.1.0",
-  "description": "Finance tools for scoring narrative lag and stale market signal.",
+  "description": "Terminal finance tools for scoring signal freshness, usefulness, and source latency.",
   "type": "module",
   "private": true,
   "engines": {
@@ -10,6 +10,7 @@
   "scripts": {
     "examples": "node src/cli/run-examples.js",
     "analyze": "node src/cli/analyze-file.js",
+    "sources": "node src/cli/score-sources.js",
     "test": "node --test"
   },
   "keywords": [

@@ -1,6 +1,7 @@
 [
   {
     "id": "earnings-lagged-note",
+    "source": "BrokerWrap",
     "ticker": "ALFA",
     "headline": "Broker note upgrades ALFA after earnings beat",
     "eventTime": "2026-04-08T09:30:00Z",
@@ -18,6 +19,7 @@
   },
   {
     "id": "fda-readthrough",
+    "source": "SectorKnife",
     "ticker": "VRTX",
     "headline": "Sector blog catches second-order FDA implications",
     "eventTime": "2026-04-08T13:00:00Z",
@@ -34,6 +36,7 @@
   },
   {
     "id": "macro-obituary",
+    "source": "MacroLetter",
     "ticker": "DXY",
     "headline": "Macro newsletter explains dollar spike after policy surprise",
     "eventTime": "2026-04-08T14:00:00Z",
@@ -51,6 +54,7 @@
   },
   {
     "id": "rumor-half-alive",
+    "source": "TapeLeak",
     "ticker": "MESA",
     "headline": "Merger chatter leaks before confirmation",
     "eventTime": "2026-04-08T15:15:00Z",
@@ -63,6 +67,40 @@
     "hasNovelInformation": true,
     "notes": [
       "Not early, but still not fully dead."
+    ]
+  },
+  {
+    "id": "broker-wrap-round-two",
+    "source": "BrokerWrap",
+    "ticker": "CYRA",
+    "headline": "Desk note chases a defense name after the rerating",
+    "eventTime": "2026-04-08T10:15:00Z",
+    "publishTime": "2026-04-08T13:05:00Z",
+    "direction": "up",
+    "priceChangeBeforePublishPct": 6.1,
+    "priceChangeAfterPublishPct": 0.7,
+    "volumeMultipleBeforePublish": 3.9,
+    "volumeMultipleAfterPublish": 1.1,
+    "hasNovelInformation": false,
+    "notes": [
+      "Correct note. Late note."
+    ]
+  },
+  {
+    "id": "sector-follow-through",
+    "source": "SectorKnife",
+    "ticker": "ORBX",
+    "headline": "Sector writer catches a supplier readthrough before institutions size it",
+    "eventTime": "2026-04-08T11:40:00Z",
+    "publishTime": "2026-04-08T11:57:00Z",
+    "direction": "up",
+    "priceChangeBeforePublishPct": 0.9,
+    "priceChangeAfterPublishPct": 2.8,
+    "volumeMultipleBeforePublish": 1.2,
+    "volumeMultipleAfterPublish": 2.9,
+    "hasNovelInformation": true,
+    "notes": [
+      "Still enough uncertainty left to matter."
     ]
   }
 ]

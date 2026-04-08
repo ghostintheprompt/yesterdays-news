@@ -1,9 +1,11 @@
 /**
  * @typedef {"up" | "down" | "flat"} Direction
  * @typedef {"FRESH_SIGNAL" | "STILL_LIVE" | "LATE_BUT_VISIBLE" | "YESTERDAYS_NEWS"} Verdict
+ * @typedef {"TRADEABLE" | "LIVE_BUT_THIN" | "CONCEPT_VALUE" | "OBSERVATION_ONLY" | "PR_VALUE"} Utility
  *
  * @typedef {Object} SignalCase
  * @property {string} id
+ * @property {string} source
  * @property {string} ticker
  * @property {string} headline
  * @property {string} eventTime
@@ -18,6 +20,7 @@
  *
  * @typedef {Object} ScoredSignal
  * @property {Verdict} verdict
+ * @property {Utility} utility
  * @property {number} staleScore
  * @property {number} lagMinutes
  * @property {number} moveCapturedBeforePublishRatio
@@ -122,8 +125,17 @@ export function scoreSignalFreshness(signal) {
     verdict = 'STILL_LIVE';
   }
 
+  const utility = classifyUtility(
+    signal,
+    verdict,
+    lagMinutes,
+    moveCapturedBeforePublishRatio,
+    continuationRatio
+  );
+
   return {
     verdict,
+    utility,
     staleScore,
     lagMinutes,
     moveCapturedBeforePublishRatio: round(moveCapturedBeforePublishRatio, 3),
@@ -139,11 +151,57 @@ export function scoreSignalFreshness(signal) {
 export function summarizeSignal(signal) {
   const scored = scoreSignalFreshness(signal);
   return [
-    `${signal.ticker} :: ${signal.headline}`,
+    `${signal.source} :: ${signal.ticker} :: ${signal.headline}`,
     `Verdict: ${scored.verdict} (${scored.staleScore}/100)`,
+    `Use: ${scored.utility}`,
     `Lag: ${scored.lagMinutes}m | Pre-publish move share: ${Math.round(scored.moveCapturedBeforePublishRatio * 100)}% | Post-publish continuation share: ${Math.round(scored.continuationRatio * 100)}%`,
     ...scored.reasons.map((reason) => `- ${reason}`),
   ].join('\n');
+}
+
+/**
+ * Public information is late by definition.
+ * The second question is whether any useful life remains in it.
+ *
+ * @param {SignalCase} signal
+ * @param {Verdict} verdict
+ * @param {number} lagMinutes
+ * @param {number} moveCapturedBeforePublishRatio
+ * @param {number} continuationRatio
+ * @returns {Utility}
+ */
+function classifyUtility(
+  signal,
+  verdict,
+  lagMinutes,
+  moveCapturedBeforePublishRatio,
+  continuationRatio
+) {
+  if (
+    signal.hasNovelInformation &&
+    verdict === 'FRESH_SIGNAL' &&
+    continuationRatio >= 0.45
+  ) {
+    return 'TRADEABLE';
+  }
+
+  if (
+    signal.hasNovelInformation &&
+    verdict === 'STILL_LIVE' &&
+    continuationRatio >= 0.25
+  ) {
+    return 'LIVE_BUT_THIN';
+  }
+
+  if (signal.hasNovelInformation) {
+    return 'CONCEPT_VALUE';
+  }
+
+  if (lagMinutes >= 90 || moveCapturedBeforePublishRatio >= 0.75) {
+    return 'PR_VALUE';
+  }
+
+  return 'OBSERVATION_ONLY';
 }
 
 /**
