@@ -1,0 +1,24 @@
+{
+  "name": "yesterdays-news",
+  "version": "0.1.0",
+  "description": "Finance tools for scoring narrative lag and stale market signal.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "examples": "node src/cli/run-examples.js",
+    "analyze": "node src/cli/analyze-file.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "finance",
+    "market-structure",
+    "signal-decay",
+    "news-latency",
+    "quant",
+    "trading"
+  ],
+  "license": "MIT"
+}
