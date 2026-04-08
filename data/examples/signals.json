@@ -1,0 +1,68 @@
+[
+  {
+    "id": "earnings-lagged-note",
+    "ticker": "ALFA",
+    "headline": "Broker note upgrades ALFA after earnings beat",
+    "eventTime": "2026-04-08T09:30:00Z",
+    "publishTime": "2026-04-08T12:10:00Z",
+    "direction": "up",
+    "priceChangeBeforePublishPct": 7.8,
+    "priceChangeAfterPublishPct": 1.1,
+    "volumeMultipleBeforePublish": 4.8,
+    "volumeMultipleAfterPublish": 1.2,
+    "hasNovelInformation": false,
+    "notes": [
+      "Move started at the open.",
+      "Write-up arrived after the bulk of the squeeze."
+    ]
+  },
+  {
+    "id": "fda-readthrough",
+    "ticker": "VRTX",
+    "headline": "Sector blog catches second-order FDA implications",
+    "eventTime": "2026-04-08T13:00:00Z",
+    "publishTime": "2026-04-08T13:18:00Z",
+    "direction": "up",
+    "priceChangeBeforePublishPct": 1.2,
+    "priceChangeAfterPublishPct": 3.7,
+    "volumeMultipleBeforePublish": 1.4,
+    "volumeMultipleAfterPublish": 3.3,
+    "hasNovelInformation": true,
+    "notes": [
+      "Analysis surfaced a readthrough angle the tape had not fully priced."
+    ]
+  },
+  {
+    "id": "macro-obituary",
+    "ticker": "DXY",
+    "headline": "Macro newsletter explains dollar spike after policy surprise",
+    "eventTime": "2026-04-08T14:00:00Z",
+    "publishTime": "2026-04-08T16:05:00Z",
+    "direction": "up",
+    "priceChangeBeforePublishPct": 2.4,
+    "priceChangeAfterPublishPct": 0.2,
+    "volumeMultipleBeforePublish": 3.1,
+    "volumeMultipleAfterPublish": 0.9,
+    "hasNovelInformation": false,
+    "notes": [
+      "Correct explanation.",
+      "Trade largely dead."
+    ]
+  },
+  {
+    "id": "rumor-half-alive",
+    "ticker": "MESA",
+    "headline": "Merger chatter leaks before confirmation",
+    "eventTime": "2026-04-08T15:15:00Z",
+    "publishTime": "2026-04-08T15:52:00Z",
+    "direction": "up",
+    "priceChangeBeforePublishPct": 2.9,
+    "priceChangeAfterPublishPct": 2.4,
+    "volumeMultipleBeforePublish": 2.2,
+    "volumeMultipleAfterPublish": 2.0,
+    "hasNovelInformation": true,
+    "notes": [
+      "Not early, but still not fully dead."
+    ]
+  }
+]
