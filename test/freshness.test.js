@@ -65,3 +65,55 @@ test('keeps novel but late material in the conceptual bucket', () => {
 
   assert.equal(result.utility, 'CONCEPT_VALUE');
 });
+
+test('calculates confidence score based on missing metadata', () => {
+  const result = scoreSignalFreshness({
+    id: 'missing-meta',
+    source: 'TapeLeak',
+    ticker: 'MESA',
+    headline: 'Missing info',
+    eventTime: '2026-04-08T15:15:00Z',
+    publishTime: '2026-04-08T15:52:00Z',
+    // Missing price changes
+    hasNovelInformation: true,
+  });
+
+  assert.equal(result.confidenceScore, 50); // 2 out of 4 required fields
+});
+
+test('applies sector-specific decay (TECH vs LEGAL)', () => {
+  const commonSignal = {
+    id: 'sector-test',
+    source: 'Test',
+    ticker: 'ABC',
+    headline: 'Test',
+    eventTime: '2026-04-08T10:00:00Z',
+    publishTime: '2026-04-08T11:00:00Z', // 60 min lag
+    direction: 'up',
+    priceChangeBeforePublishPct: 2,
+    priceChangeAfterPublishPct: 2,
+    hasNovelInformation: true,
+  };
+
+  const techResult = scoreSignalFreshness({ ...commonSignal, sector: 'TECH' });
+  const legalResult = scoreSignalFreshness({ ...commonSignal, sector: 'LEGAL' });
+
+  // Tech has half-life of 60m, so 60m lag is 100% of lag weight (45)
+  // Legal has half-life of 1440m, so 60m lag is minimal
+  assert.ok(techResult.staleScore > legalResult.staleScore);
+});
+
+test('handles invalid date formats gracefully', () => {
+  const result = scoreSignalFreshness({
+    id: 'bad-date',
+    source: 'Test',
+    ticker: 'ABC',
+    headline: 'Test',
+    eventTime: 'not-a-date',
+    publishTime: '2026-04-08T11:00:00Z',
+    hasNovelInformation: true,
+  });
+
+  assert.equal(result.lagMinutes, 0);
+  assert.equal(result.confidenceScore, 25); // Only publishTime is valid, other 3 are missing/invalid
+});
