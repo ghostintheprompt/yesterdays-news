@@ -3,6 +3,21 @@
  * @typedef {"FRESH_SIGNAL" | "STILL_LIVE" | "LATE_BUT_VISIBLE" | "YESTERDAYS_NEWS"} Verdict
  * @typedef {"TRADEABLE" | "LIVE_BUT_THIN" | "CONCEPT_VALUE" | "OBSERVATION_ONLY" | "PR_VALUE"} Utility
  *
+ * @typedef {Object} SectorProfile
+ * @property {number} lagWeight
+ * @property {number} preMoveWeight
+ * @property {number} halfLifeMinutes
+ */
+
+/** @type {Record<string, SectorProfile>} */
+export const SECTOR_PROFILES = {
+  TECH: { lagWeight: 45, preMoveWeight: 50, halfLifeMinutes: 60 },
+  MEDICAL: { lagWeight: 20, preMoveWeight: 30, halfLifeMinutes: 240 },
+  LEGAL: { lagWeight: 10, preMoveWeight: 20, halfLifeMinutes: 1440 },
+  DEFAULT: { lagWeight: 30, preMoveWeight: 45, halfLifeMinutes: 180 },
+};
+
+/**
  * @typedef {Object} SignalCase
  * @property {string} id
  * @property {string} source
@@ -17,11 +32,13 @@
  * @property {number} volumeMultipleAfterPublish
  * @property {boolean} hasNovelInformation
  * @property {string[]} notes
+ * @property {string} [sector]
  *
  * @typedef {Object} ScoredSignal
  * @property {Verdict} verdict
  * @property {Utility} utility
  * @property {number} staleScore
+ * @property {number} confidenceScore
  * @property {number} lagMinutes
  * @property {number} moveCapturedBeforePublishRatio
  * @property {number} continuationRatio
@@ -46,8 +63,10 @@ export function clamp(value, min, max) {
  * @returns {number}
  */
 export function getMinutesBetween(earlier, later) {
+  if (!earlier || !later) return 0;
   const start = new Date(earlier);
   const end = new Date(later);
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
   return Math.max(0, Math.round((end.getTime() - start.getTime()) / 60000));
 }
 
@@ -56,18 +75,21 @@ export function getMinutesBetween(earlier, later) {
  * @returns {ScoredSignal}
  */
 export function scoreSignalFreshness(signal) {
+  const sector = (signal.sector || 'DEFAULT').toUpperCase();
+  const profile = SECTOR_PROFILES[sector] || SECTOR_PROFILES.DEFAULT;
+
   const lagMinutes = getMinutesBetween(signal.eventTime, signal.publishTime);
-  const preMove = Math.abs(signal.priceChangeBeforePublishPct);
-  const postMove = Math.abs(signal.priceChangeAfterPublishPct);
+  const preMove = Math.abs(signal.priceChangeBeforePublishPct || 0);
+  const postMove = Math.abs(signal.priceChangeAfterPublishPct || 0);
   const totalMove = preMove + postMove + EPSILON;
   const moveCapturedBeforePublishRatio = preMove / totalMove;
   const continuationRatio = postMove / totalMove;
 
-  const lagComponent = clamp((lagMinutes / 180) * 30, 0, 30);
-  const preMoveComponent = clamp(moveCapturedBeforePublishRatio * 45, 0, 45);
+  const lagComponent = clamp((lagMinutes / profile.halfLifeMinutes) * profile.lagWeight, 0, profile.lagWeight);
+  const preMoveComponent = clamp(moveCapturedBeforePublishRatio * profile.preMoveWeight, 0, profile.preMoveWeight);
   const noveltyComponent = signal.hasNovelInformation ? 0 : 15;
   const volumeFrontRunComponent = clamp(
-    Math.max(signal.volumeMultipleBeforePublish - signal.volumeMultipleAfterPublish, 0) * 5,
+    Math.max((signal.volumeMultipleBeforePublish || 0) - (signal.volumeMultipleAfterPublish || 0), 0) * 5,
     0,
     10
   );
@@ -85,12 +107,24 @@ export function scoreSignalFreshness(signal) {
     100
   );
 
+  // Confidence Score Calculation
+  const requiredFields = ['eventTime', 'publishTime', 'priceChangeBeforePublishPct', 'priceChangeAfterPublishPct'];
+  const presentFields = requiredFields.filter(field => {
+    const value = signal[field];
+    if (value === undefined || value === null) return false;
+    if (field === 'eventTime' || field === 'publishTime') {
+      return !isNaN(new Date(value).getTime());
+    }
+    return true;
+  }).length;
+  const confidenceScore = Math.round((presentFields / requiredFields.length) * 100);
+
   /** @type {string[]} */
   const reasons = [];
 
-  if (lagMinutes >= 120) {
-    reasons.push(`Published ${lagMinutes} minutes after the event.`);
-  } else if (lagMinutes >= 45) {
+  if (lagMinutes >= profile.halfLifeMinutes) {
+    reasons.push(`Published ${lagMinutes} minutes after the event (Sector Half-life: ${profile.halfLifeMinutes}m).`);
+  } else if (lagMinutes >= profile.halfLifeMinutes / 4) {
     reasons.push(`Noticeable lag: ${lagMinutes} minutes after the event.`);
   } else {
     reasons.push(`Arrived within ${lagMinutes} minutes of the event.`);
@@ -137,6 +171,7 @@ export function scoreSignalFreshness(signal) {
     verdict,
     utility,
     staleScore,
+    confidenceScore,
     lagMinutes,
     moveCapturedBeforePublishRatio: round(moveCapturedBeforePublishRatio, 3),
     continuationRatio: round(continuationRatio, 3),
@@ -152,7 +187,7 @@ export function summarizeSignal(signal) {
   const scored = scoreSignalFreshness(signal);
   return [
     `${signal.source} :: ${signal.ticker} :: ${signal.headline}`,
-    `Verdict: ${scored.verdict} (${scored.staleScore}/100)`,
+    `Verdict: ${scored.verdict} (${scored.staleScore}/100) | Confidence: ${scored.confidenceScore}%`,
     `Use: ${scored.utility}`,
     `Lag: ${scored.lagMinutes}m | Pre-publish move share: ${Math.round(scored.moveCapturedBeforePublishRatio * 100)}% | Post-publish continuation share: ${Math.round(scored.continuationRatio * 100)}%`,
     ...scored.reasons.map((reason) => `- ${reason}`),
@@ -202,6 +237,46 @@ function classifyUtility(
   }
 
   return 'OBSERVATION_ONLY';
+}
+
+/**
+ * @typedef {Object} DriftResult
+ * @property {boolean} detected
+ * @property {string[]} findings
+ */
+
+/**
+ * @param {string} text
+ * @returns {DriftResult}
+ */
+export function detectSemanticDrift(text) {
+  const DEPRECATED_TERMS = [
+    'legacy-system',
+    'deprecated',
+    'obsolete',
+    'archived',
+    'old-version',
+  ];
+  const findings = [];
+
+  const lowerText = text.toLowerCase();
+  for (const term of DEPRECATED_TERMS) {
+    if (lowerText.includes(term)) {
+      findings.push(`Contains deprecated term: "${term}"`);
+    }
+  }
+
+  // Simple date detection for "old" dates (e.g., 2020, 2021, 2022)
+  const oldDateMatch = text.match(/\b(20[01]\d|202[0-3])\b/g);
+  if (oldDateMatch) {
+    const uniqueDates = [...new Set(oldDateMatch)];
+    findings.push(`Contains potentially outdated years: ${uniqueDates.join(', ')}`);
+  }
+
+  return {
+    detected: findings.length > 0,
+    findings,
+  };
 }
 
 /**
