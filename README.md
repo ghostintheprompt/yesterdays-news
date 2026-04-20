@@ -1,10 +1,7 @@
+<img src="yesterdays_news.png" width="200">
+
 # Yesterday's News
-
-<div align="center">
-  <img src="yesterdays_news.png" width="256" height="256" alt="Yesterday's News Icon" />
-</div>
-
-Terminal-native finance tools for grading whether a market story is still alive, just useful, or already dead.
+Terminal-native finance tools for grading whether a market story is still alive, just useful, or already dead. — v1.0
 
 ## Core Rule
 
@@ -20,7 +17,7 @@ Some late information still has value:
 
 What public information usually stops being is clean entry.
 
-## What It Does
+## What it does
 
 `Yesterday's News` is a research-first repo about signal decay, source latency, and the difference between public information and tradable information.
 
