@@ -1,5 +1,9 @@
 # Yesterday's News
 
+<div align="center">
+  <img src="yesterdays_news.png" width="256" height="256" alt="Yesterday's News Icon" />
+</div>
+
 Terminal-native finance tools for grading whether a market story is still alive, just useful, or already dead.
 
 ## Core Rule
