@@ -1,4 +1,6 @@
-<img src="yesterdays_news.png" width="200">
+<p align="center">
+  <img src="yesterdays_news.png" width="520">
+</p>
 
 # Yesterday's News
 Terminal-native finance tools for grading whether a market story is still alive, just useful, or already dead. — v1.0
