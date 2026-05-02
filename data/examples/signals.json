@@ -102,5 +102,43 @@
     "notes": [
       "Still enough uncertainty left to matter."
     ]
+  },
+  {
+    "id": "s1",
+    "source": "Ghost-Net",
+    "ticker": "SYS",
+    "headline": "Kernel-level hook detected in legacy-system startup-hook",
+    "eventTime": "2026-05-02T10:00:00Z",
+    "publishTime": "2026-05-02T10:05:00Z",
+    "direction": "flat",
+    "priceChangeBeforePublishPct": 0.0,
+    "priceChangeAfterPublishPct": 0.0,
+    "volumeMultipleBeforePublish": 1.0,
+    "volumeMultipleAfterPublish": 1.0,
+    "hasNovelInformation": true,
+    "sector": "TECH",
+    "notes": [
+      "Offensive Kill-Chain: Persistence via registry-hive-persistence.",
+      "Integrity Alert: Potential VMM-bypass identified."
+    ]
+  },
+  {
+    "id": "INC-4042",
+    "source": "SOC-Watch",
+    "ticker": "NET",
+    "headline": "SIEM-trigger: Anomaly-detected in outbound-tunnel exfiltration path",
+    "eventTime": "2026-05-02T11:30:00Z",
+    "publishTime": "2026-05-02T11:32:00Z",
+    "direction": "down",
+    "priceChangeBeforePublishPct": 0.5,
+    "priceChangeAfterPublishPct": 2.5,
+    "volumeMultipleBeforePublish": 1.5,
+    "volumeMultipleAfterPublish": 4.2,
+    "hasNovelInformation": true,
+    "sector": "TECH",
+    "notes": [
+      "Defensive Alert: Actor-correlation initiated.",
+      "Forensic Artifact: Artifact-reconstruction confirms heap-spray payload."
+    ]
   }
 ]

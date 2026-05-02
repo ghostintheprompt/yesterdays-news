@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { scoreSignalFreshness } from '../src/core/freshness.js';
+import { scoreSignalFreshness, detectSemanticDrift } from '../src/core/freshness.js';
 
 test('marks clearly stale commentary as yesterdays news', () => {
   const result = scoreSignalFreshness({
@@ -116,4 +116,15 @@ test('handles invalid date formats gracefully', () => {
 
   assert.equal(result.lagMinutes, 0);
   assert.equal(result.confidenceScore, 25); // Only publishTime is valid, other 3 are missing/invalid
+});
+
+test('detects high-fidelity forensic signatures (UIP V1.5)', () => {
+  const text = 'Investigation into exfiltration paths and kernel-level hooks. SIEM-trigger anomaly-detected.';
+  const result = detectSemanticDrift(text);
+
+  assert.ok(result.detected);
+  assert.ok(result.signatures.includes('OFFENSIVE::EXFILTRATION'));
+  assert.ok(result.signatures.includes('OFFENSIVE::KERNEL_HOOKS'));
+  assert.ok(result.signatures.includes('DEFENSIVE::SOC_ALERT'));
+  assert.equal(result.findings.length, 3);
 });
