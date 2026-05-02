@@ -13,18 +13,18 @@ The only question is what kind of late.
 
 Being right is irrelevant. Being early is the only shot you have. By the time the explanation looks clean and the conviction arrives dressed like certainty, the move is over. price is already in the parking lot with your money in its pocket.
 
-## What It Does
+## Instrument
 
 `Yesterday's News` is a rude little instrument for signal decay and narrative lag. It exists to ask the right first question: is this still alive, or am I being handed a corpse with a chart attached.
 
 - **Freshness Scoring:** How much of the move happened before the write-up?
-- **Utility Classification:** If it is late, is it still useful for anything besides the trade?
+- **Utility Classification:** If it is late, is it still useful for something besides the trade?
 - **Source Accountability:** Which desks mostly narrate after the move is done?
 - **Terminal Workflow:** Stop arguing with vibes.
 
-## The Labels
+## Verdicts
 
-### Verdict
+### Classification
 - `FRESH_SIGNAL` - The move is just starting.
 - `STILL_LIVE` - Late, but still breathing.
 - `LATE_BUT_VISIBLE` - Edge is gone. clarity is high.
@@ -37,7 +37,7 @@ Being right is irrelevant. Being early is the only shot you have. By the time th
 - `OBSERVATION_ONLY`
 - `PR_VALUE` (Excellent journalism, dead money)
 
-## Why Terminal
+## No UI
 
 No UI on purpose.
 
@@ -49,7 +49,7 @@ The market does not care that you finally understand the story. It pays for surv
 
 A stale article is one thing. A stale source is a business model. Most market commentary is not wrong—it is just late often enough to cost you money.
 
-## Quick Start
+## Execution
 
 ```bash
 npm run analyze -- data/examples/signals.json
