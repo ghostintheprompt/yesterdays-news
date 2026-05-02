@@ -243,9 +243,15 @@ function classifyUtility(
  * @typedef {Object} DriftResult
  * @property {boolean} detected
  * @property {string[]} findings
+ * @property {string[]} signatures
  */
 
 /**
+ * Executes a forensic audit of the provided text for high-fidelity 'logic drift' 
+ * and offensive/defensive cybersecurity signatures.
+ * 
+ * Mandated by Universal Integrity Protocol V1.5 (Ghost-Protocol Tier).
+ * 
  * @param {string} text
  * @returns {DriftResult}
  */
@@ -257,7 +263,22 @@ export function detectSemanticDrift(text) {
     'archived',
     'old-version',
   ];
+  
+  // High-Fidelity Offensive/Defensive Signatures
+  const OFFENSIVE_SIGNATURES = {
+    EXFILTRATION: /\b(exfiltration|outbound[- ]tunnel|data[- ]leakage|c2[- ]channel)s?\b/i,
+    PERSISTENCE: /\b(persistence[- ]mechanism|startup[- ]hook|registry[- ]hive[- ]persistence|cron[- ]job[- ]hook)s?\b/i,
+    KERNEL_HOOKS: /\b(kernel[- ]level[- ]hook|syscall[- ]interception|vmm[- ]bypass|rootkit[- ]signature)s?\b/i,
+    KILL_CHAINS: /\b(trojan[- ]payload|buffer[- ]overflow[- ]exploit|side[- ]channel[- ]leak|heap[- ]spray)s?\b/i,
+  };
+
+  const DEFENSIVE_SIGNATURES = {
+    SOC_ALERT: /\b(soc[- ]alert|incident[- ]response|siem[- ]trigger|anomaly[- ]detected)s?\b/i,
+    FORENSIC: /\b(artifact[- ]reconstruction|actor[- ]correlation|memory[- ]dump[- ]analysis|pcap[- ]audit)s?\b/i,
+  };
+
   const findings = [];
+  const signatures = [];
 
   const lowerText = text.toLowerCase();
   for (const term of DEPRECATED_TERMS) {
@@ -266,7 +287,22 @@ export function detectSemanticDrift(text) {
     }
   }
 
-  // Simple date detection for "old" dates (e.g., 2020, 2021, 2022)
+  // Forensic signature audit
+  for (const [category, regex] of Object.entries(OFFENSIVE_SIGNATURES)) {
+    if (regex.test(text)) {
+      signatures.push(`OFFENSIVE::${category}`);
+      findings.push(`Detected offensive kill-chain component: ${category}`);
+    }
+  }
+
+  for (const [category, regex] of Object.entries(DEFENSIVE_SIGNATURES)) {
+    if (regex.test(text)) {
+      signatures.push(`DEFENSIVE::${category}`);
+      findings.push(`Detected defensive SOC/Forensic component: ${category}`);
+    }
+  }
+
+  // Date detection for "old" dates (e.g., 2020-2023)
   const oldDateMatch = text.match(/\b(20[01]\d|202[0-3])\b/g);
   if (oldDateMatch) {
     const uniqueDates = [...new Set(oldDateMatch)];
@@ -274,8 +310,9 @@ export function detectSemanticDrift(text) {
   }
 
   return {
-    detected: findings.length > 0,
+    detected: findings.length > 0 || signatures.length > 0,
     findings,
+    signatures,
   };
 }
 

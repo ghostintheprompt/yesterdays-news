@@ -32,8 +32,11 @@ function runAnalysis() {
       
       const drift = detectSemanticDrift(signal.headline + ' ' + (signal.notes || []).join(' '));
       if (drift.detected) {
-        console.log('Semantic Drift Detected:');
+        console.log('Forensic Audit Result: LOGIC DRIFT / SIGNATURES DETECTED');
         drift.findings.forEach(f => console.log(`  [!] ${f}`));
+        if (drift.signatures.length > 0) {
+          console.log('  Signatures: ' + drift.signatures.join(', '));
+        }
       }
 
       const scored = scoreSignalFreshness(signal);
